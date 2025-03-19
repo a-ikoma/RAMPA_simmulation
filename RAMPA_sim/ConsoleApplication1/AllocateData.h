@@ -4,7 +4,7 @@
 #include <vector>
 #include "DDCGraph.h"
 #include "LinkAnt.h"
-class AllocateData{//過去の割り当てデータを保存しておく。これによって、他の制約時間を満たせているかなどを確認する
+class AllocateData{
 private:
 
     struct allocInfo {
@@ -23,8 +23,8 @@ public:
     void removeAllocData(int id, DDCGraph* ddcGraph);
     bool disIntTime(int id, DDCGraph* ddcGraph);
     void disIntegratePart(DDCGraph* ddcGraph, int orgCore, int disCore, DDCGraph::Map::edge_descriptor e, int id);
-    void resetAll();//すべてのreqをdeleteするための関数
-    std::map<int, allocInfo> info;//現在の割り当て情報を保持
+    void resetAll();
+    std::map<int, allocInfo> info;
 
 
 

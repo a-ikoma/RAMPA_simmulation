@@ -2,7 +2,7 @@
 #include "LinkAnt.h"
 #include "DDCGraph.h"
 #include "Request.h"
-class ModelPartition//動的計画法でオペレーションの配分を決定
+class ModelPartition
 {
 public:
 	ModelPartition();
@@ -14,7 +14,7 @@ public:
 	std::vector<std::pair<std::vector<int>, std::pair<double, double>>> enumerate_distributions(int n, int k, LinkAnt* ant, DDCGraph* ddcGraph, Request* req);
 
 private:
-	bool searchFin;//提案手法の時に解が見つかったらそれで処理を終了するが、これがtrueだったら再起探索はすべて終了
+	bool searchFin;
 
 	std::pair<std::vector<int>, double> optimize_distribution(int n, int k, std::vector<double>& capacities, Request* req, LinkAnt* ant, DDCGraph* ddcGraph);
 

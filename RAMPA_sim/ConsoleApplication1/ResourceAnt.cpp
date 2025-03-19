@@ -11,7 +11,7 @@ void ResourceAnt::threadAnt2(std::map<int, int> rMap, int num, DDCGraph* d, Requ
 
     double baseCost;
     if (bestCost == -1 || d->allocatePolicy == 2) {
-        baseCost = 99999999;//枝切りのためのコスト
+        baseCost = 99999999;
     }
     else {
         baseCost = bestCost;
@@ -20,12 +20,9 @@ void ResourceAnt::threadAnt2(std::map<int, int> rMap, int num, DDCGraph* d, Requ
     for (int i = 0; i < linkThreadParam; i++) {
         LinkAnt* a = new LinkAnt(d, req, rMap, hopLimit, feroP, costP, baseFeromon, reqs, edgemaps, resourcemaps, baseCost, allCost);
 
-        if (a->LinkEmbedding(&settingFeromons, d, req, edgeCost) == true) {//候補だったら
-
-
-            //モデルのオペレーションの配分を決定＋制約満たす配分があるかを調べる
+        if (a->LinkEmbedding(&settingFeromons, d, req, edgeCost) == true) {
             ModelPartition mp = ModelPartition();
-            if (mp.ModelPartitioning(a, d, req) == true){//オペレーションの配分も大丈夫オッケー
+            if (mp.ModelPartitioning(a, d, req) == true){
                 sucessFlg = true;
                 if (a->allCost >= 0 && (minCost == -1 || minCost > a->allCost)) {
                     if (bestAnt != nullptr) {
@@ -59,12 +56,10 @@ ResourceAnt::ResourceAnt(){
     feromonRate = 0.1;
     allCost = 0;
     feromonRate = 0;
-
-    antSedai = 0;//蟻の世代数
-    antNum = 0;//１世代の蟻の数
-    feromonParam = 0;//フェロモンの重要度パラメータ
-    costParam = 0;//コストの重要度パラメータ
-
+    antSedai = 0;
+    antNum = 0;
+    feromonParam = 0;
+    costParam = 0;
     linkThreadParam = 0;
     searchItr = 0;
     baseFeromon = 0;
@@ -88,10 +83,10 @@ ResourceAnt::ResourceAnt(DDCGraph* ddcGraph, int sedai, int antnum, double feroP
 
 
 
-    antSedai = sedai;//蟻の世代数120*20ひき=40*60
-    antNum = antnum;//１世代の蟻の数
-    feromonParam = feroP;//フェロモンの重要度パラメータ
-    costParam = costP;//コストの重要度パラメータ
+    antSedai = sedai;
+    antNum = antnum;
+    feromonParam = feroP;
+    costParam = costP;
 
     linkThreadParam = antNum / 10;
     searchItr = antNum / linkThreadParam;
@@ -99,7 +94,7 @@ ResourceAnt::ResourceAnt(DDCGraph* ddcGraph, int sedai, int antnum, double feroP
     auto req_range = vertices(ddcGraph->graph);
     for (auto first = req_range.first, last = req_range.second; first != last; ++first) {//要求グラフ
         residualData[ddcGraph->graph[*first].number] = ddcGraph->graph[*first].residual;
-    }//残余数の初期化
+    }
     for (int i = 0; i < searchItr; i++) {
         bestAnts[i] = nullptr;
     }
@@ -127,12 +122,12 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
 
     std::map<DDCGraph::Map::edge_descriptor, double> edgeCost;
 
-    ddcGraph->updateResourceCost(&resourceCosts, &residualData);//コストの設定
+    ddcGraph->updateResourceCost(&resourceCosts, &residualData);
 
 
     auto vertex_range = vertices(ddcGraph->graph);
 
-    for (auto vfirst = req_range.first, last = req_range.second; vfirst != last; ++vfirst) {//要求グラフ
+    for (auto vfirst = req_range.first, last = req_range.second; vfirst != last; ++vfirst) {
         vector<double> feromons;
         vector<double> costs;
         vector<DDCGraph::Map::vertex_descriptor> nodes;
@@ -140,12 +135,12 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
         vector<int> resRange2;
         double totalW = 0;
 
-        for (auto efirst : resourceRange) {//基盤グラフ
+        for (auto efirst : resourceRange) {
             if (residualData[ddcGraph->graph[efirst].number] <= 0 || (bestCost != -1 && bestCost < allCost + resourceCosts[efirst]) || checkRange(ddcGraph->graph[efirst].number, ddcGraph, resourceRange) == false) {
                 continue;
             }
 
-            if (maxResSearchFlg == true && ddcGraph->graph[efirst].residual < req->stageNum) {//maxResSearchFlg == trueのときに、無理だから
+            if (maxResSearchFlg == true && ddcGraph->graph[efirst].residual < req->stageNum) {
                 continue;
             }
 
@@ -211,7 +206,6 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
 
     ddcGraph->updateLinkCost(&edgeCost, &resourceCosts, &residualData);
 
-    //リンクの埋め込み
     int hikakuCount = 0;
 
     int endCount = 0;
@@ -219,7 +213,7 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
 
 
 
-    for (int j = 0; j < antSedai; j++) {//10世代
+    for (int j = 0; j < antSedai; j++) {
         for (const auto& item : bestAnts) {
             if (item.second != nullptr) {
                 delete item.second;
@@ -228,8 +222,7 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
         }
 
 #pragma omp parallel for
-        for (int i = 0; i < searchItr; i++) {//蟻の数分スレッド
-            // ループ変数idは必ずコピーキャプチャする
+        for (int i = 0; i < searchItr; i++) {
             threadAnt2(resourceMap, i, ddcGraph, req, feromonParam, costParam, &edgeCost);
         }
 
@@ -258,7 +251,7 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
             }
 
 
-            if (bestAnts[i]->allCost != -1 && (tmpCost == -1 || tmpCost > bestAnts[i]->allCost)) {//パケットスイッチ優先
+            if (bestAnts[i]->allCost != -1 && (tmpCost == -1 || tmpCost > bestAnts[i]->allCost)) {
 
                 if (bestLinkAnt != nullptr) {
                     delete bestLinkAnt;
@@ -280,12 +273,12 @@ bool ResourceAnt::ResourceEmbedding(DDCGraph* ddcGraph, Request* req) {
 
         if (sucessFlg == true) {
 
-            if (ddcGraph->allocatePolicy!=2 && minCost < 1) {//資源割り当てコストを利用かつコストが0ならこれ以上はないから探索終了
+            if (ddcGraph->allocatePolicy!=2 && minCost < 1) {
                 break;
             }
         }
 
-        setFeromon(ddcGraph, req, result, minCost);//リンクのフェロモンの設定
+        setFeromon(ddcGraph, req, result, minCost);
 
 
 
@@ -326,7 +319,7 @@ void ResourceAnt::setFeromon(DDCGraph* ddcGraph, Request* req, bool sucessFlg, d
         for (auto e : LinkSet) {
             DDCGraph::Map::edge_descriptor ed = edge(e.first.first, e.first.second, ddcGraph->graph).first;
             double tmp = feromonRate / tmpCost;
-            if (settingFeromons.find(ed) == settingFeromons.end()) {//存在しないなら
+            if (settingFeromons.find(ed) == settingFeromons.end()) {
                 settingFeromons[ed][e.second] = baseFeromon + tmp;
                 continue;
             }

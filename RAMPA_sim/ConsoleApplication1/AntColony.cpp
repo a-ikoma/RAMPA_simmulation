@@ -4,7 +4,7 @@
 
 using namespace std;
 
-//map<int,ResourceAnt> bestAnts;
+
 void AntColony::threadAnt(int ants, int num, DDCGraph* d, Request* req, double feroP, double costP, int curSedai) {
 
     ResourceAnt bestAnt;
@@ -14,10 +14,10 @@ void AntColony::threadAnt(int ants, int num, DDCGraph* d, Request* req, double f
 
     for (int i = 0; i < ants; i++) {
         ResourceAnt ant = ResourceAnt(d, antSedai, antNum, feroP, costP, feromonRate,req->getHopLimit(), &reqs, &edgemaps, &resourcemaps, bestCost);
-        if (curSedai == 1 && curFoundFlg == false) {//‰ğ‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½‚çEEE
-            ant.maxResSearchFlg = true;//<-‰Šúû‘©‚µ‚·‚¬‚é‚©‚ç‚È‚µ
+        if (curSedai == 1 && curFoundFlg == false) {
+            ant.maxResSearchFlg = true;
         }
-        if (ant.ResourceEmbedding(d, req) == true) {//Œó•â‚¾‚Á‚½‚ç
+        if (ant.ResourceEmbedding(d, req) == true) {
             if (ant.bestLinkAnt != nullptr && (minCost == -1 || minCost > ant.allCost)) {
                 if (minCost != -1) {
                     delete bestAnt.bestLinkAnt;
@@ -43,11 +43,11 @@ void AntColony::threadAnt(int ants, int num, DDCGraph* d, Request* req, double f
 AntColony::AntColony(AllocateData* alloc, int sedai, int antnum, double gensui, double feroP, double costP, int threadNumber, double feroRate) {
     allocData = alloc;
 
-    antSedai = sedai;//‹a‚Ì¢‘ã”
-    antNum = antnum;//‚P¢‘ã‚Ì‹a‚Ì”
-    feromonGensui = gensui;//ƒtƒFƒƒ‚ƒ“‚ÌŒ¸Š—¦
-    feromonParam = feroP;//ƒtƒFƒƒ‚ƒ“‚Ìd—v“xƒpƒ‰ƒ[ƒ^
-    costParam = costP;//ƒRƒXƒg‚Ìd—v“xƒpƒ‰ƒ[ƒ^
+    antSedai = sedai;
+    antNum = antnum;
+    feromonGensui = gensui;
+    feromonParam = feroP;
+    costParam = costP;
     threads = threadNumber;
     bestCost = -1;
     feromonRate = feroRate;
@@ -63,8 +63,6 @@ AntColony::AntColony() {
 }
 
 bool AntColony::procEmb(DDCGraph* d, Request* req) {
-
-    //ÅI“I‚ÉŠ„‚è“–‚ÄŒ‹‰Ê
     bool result = false;
     int endCount = 0;
     for (auto t : req->tasks) {
@@ -72,16 +70,16 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
     }
     double preMinCost = 0;
 
-    auto start = std::chrono::system_clock::now(); // Œv‘ªŠJnŠÔTime:15991
+    auto start = std::chrono::system_clock::now();
 
     auto req_range = vertices(d->graph);
-    for (auto first = req_range.first, last = req_range.second; first != last; ++first) {//—v‹ƒOƒ‰ƒt
+    for (auto first = req_range.first, last = req_range.second; first != last; ++first) {
         residualData[d->graph[*first].number] = d->graph[*first].residual;
-    }//c—]”‚Ì‰Šú‰»
-    std::map<DDCGraph::Map::vertex_descriptor, double> tmp;//”½’¬ŒN‚ÌC˜_‚Ì•]‰¿ê—p‚¾‚¯‚ÇA‘Œ¹H‚Æ‚Íˆê—¥‚¾‚©‚ç‚Æ‚è‚ ‚¦‚¸ƒ_ƒ~[‚Æ‚µ‚Ä‚¾‚¯—pˆÓ
+    }
+    std::map<DDCGraph::Map::vertex_descriptor, double> tmp;
 
 
-    for (int t = 0; t < allocData->info.size(); t++) {//‰ß‹‚ÌŠ„‚è“–‚Äî•ñ
+    for (int t = 0; t < allocData->info.size(); t++) {
         edgemaps.push_back(&(allocData->info[t].edgeMap));
         reqs.push_back(allocData->info[t].req);
         resourcemaps.push_back(&(allocData->info[t].resourceMap));
@@ -92,11 +90,10 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
     int maxStage = 1;
     int initialStage = 1;
 
-    if (d->allocatePolicy != 0) {//ƒXƒe[ƒW”‚ğ–‘OŒˆ’è
+    if (d->allocatePolicy != 0) {
         maxStage = req->model->defineStage;
         initialStage = req->model->defineStage;
-    }else {//
-        //c‚è‚ÌGPU”‚ÆƒIƒyƒŒ[ƒVƒ‡ƒ“‚Ì”‚Ì‚¤‚¿‚ÌÅ¬’l‚ªƒ}ƒbƒNƒX
+    }else {
         maxStage = min(d->GPUResidual,req->model->opeNum);
 
         cout << "max:" << maxStage << "\n";
@@ -104,22 +101,21 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
     }
 
 
-    for (int stage = initialStage; stage <= maxStage; stage++) {//ŠeƒXƒe[ƒW‚É‘Î‚µ‚Ä‘Œ¹‚ğŠ„‚è“–‚Ä‚Ä‚¢‚«‚Ü‚·
-        //ƒXƒe[ƒW”‚²‚Æ‚Ì—v‹¶¬
+    for (int stage = initialStage; stage <= maxStage; stage++) {
 
-        cout << "ƒXƒe[ƒW”F" << stage<<"\n";
-        req->makeRequestFromStages(stage);//ƒŠƒNƒGƒXƒg‚ğÄ\’z
+
+        req->makeRequestFromStages(stage);
 
         double tmpCost = -1;
         bool finFlg = false;
-        if (result == true) {//‘O‚ÌƒXƒe[ƒW‚Å‰ğ‚ğŒ©‚Â‚¯‚ç‚ê‚½ê‡AŸ‚ÌƒXƒe[ƒW‚Ì’Tõ‚ªI‚í‚èŸ‘æI—¹‚·‚éBiƒRƒXƒg“I‚É‰ğ‚ÍŒ©‚Â‚©‚ç‚È‚¢‚¾‚ë‚¤j
+        if (result == true) {
             finFlg = true;
         }
 
 
-        for (int i = 0; i < antSedai; i++) {////¢‘ã”
+        for (int i = 0; i < antSedai; i++) {
 
-            cout << i << "¢‘ãF";
+            cout << i << "F";
 
             int antLoopNum = antNum / threads;
 
@@ -130,7 +126,6 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
 
 #pragma omp parallel for
             for (int j = 0; j < threads; j++) {
-                // ƒ‹[ƒv•Ï”id‚Í•K‚¸ƒRƒs[ƒLƒƒƒvƒ`ƒƒ‚·‚é
                 threadAnt(antLoopNum, j, d, req, feromonParam, costParam, i);
             }
 
@@ -163,7 +158,7 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
                 auto req_range = vertices(req->graph);
 
 
-                if ((bestCost == -1 && tmpCost != -1) || (tmpCost != -1 && bestCost > tmpCost)) {//ƒpƒPƒbƒg—Dæ
+                if ((bestCost == -1 && tmpCost != -1) || (tmpCost != -1 && bestCost > tmpCost)) {
                     bestCost = tmpCost;
                     updateLinkAntInfo();
 
@@ -174,11 +169,11 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
 
             }
 
-            d->decreaseNodeFeromon();//ƒtƒFƒƒ‚ƒ“Œ¸Š(1¢‘ã•ª‚Ì‚·‚×‚Ä‚ªŒˆ‚Ü‚Á‚½Œã‚È‚Ì‚ÅƒtƒFƒƒ‚ƒ“‚ğ’¼ÚXV‚Å‚«‚é)
+            d->decreaseNodeFeromon();
             if (result == true) {
                 auto req_range = vertices(req->graph);
                 set<int> nodeList;
-                for (auto vfirst = req_range.first, last = req_range.second; vfirst != last; ++vfirst) {//—v‹ƒOƒ‰ƒt
+                for (auto vfirst = req_range.first, last = req_range.second; vfirst != last; ++vfirst) {
                     nodeList.insert(bestEmb.resourceMap[req->graph[*vfirst].number]);
                 }
 
@@ -201,21 +196,21 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
     }
 
 
-    auto end = std::chrono::system_clock::now();// Œv‘ªI—¹‚ğ•Û‘¶
+    auto end = std::chrono::system_clock::now();
     auto dur = end - start;
-    allocationTime = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count(); //ˆ—‚É—v‚µ‚½ŠÔ‚ğƒ~ƒŠ•b‚É•ÏŠ·
-    cout << "‚©‚©‚Á‚½ŠÔ:" << allocationTime << "\n";
+    allocationTime = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+    cout << "processing time:" << allocationTime << "\n";
 
 
 
 
 
     if (result == true) {
-        d->setResidual(residualData);//c—]‚ÌXV
+        d->setResidual(residualData);
 
 
 
-        req->makeRequestFromStages(optStage);//ƒŠƒNƒGƒXƒg‚ğÄ\’z
+        req->makeRequestFromStages(optStage);
 
         updateNewGraph(d, req);
 
@@ -238,7 +233,6 @@ bool AntColony::procEmb(DDCGraph* d, Request* req) {
     auto vertex_range = vertices(d->graph);
     for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
         if (d->graph[*first].resource == 1) {
-            //cout << "ƒm[ƒh" << d->graph[*first].number << "(ƒƒ‚ƒŠ)" << "‚Ìc—]‚Í";
             d->memResidual += d->graph[*first].residual;
         }
         else if (d->graph[*first].resource == 2) {
@@ -265,7 +259,7 @@ void AntColony::updateLinkAntInfo() {//bestLinkAnt.allCost
     useAppRates.clear();
     HukanouLightPath.clear();
     lightPaths.clear();
-    for (const auto& item : bestEmb.bestLinkAnt->newAllocCandinfo) {//Š„‚è“–‚Ä‚ç‚ê‚½ƒŠƒ“ƒN‚ÌƒRƒA‘S•”‚ªŠ„‚è“–‚Ä‚ç‚ê‚È‚­‚È‚Á‚¿‚á‚Á‚Ä‚é‚Æ‚¢‚¤–â‘è
+    for (const auto& item : bestEmb.bestLinkAnt->newAllocCandinfo) {
         allocCandinfo[item.first] = item.second;
     }
     for (const auto& item : bestEmb.bestLinkAnt->linkant_newAllocatedLink) {
@@ -293,15 +287,15 @@ void AntColony::updateLinkAntInfo() {//bestLinkAnt.allCost
         lightPaths[item.first] = item.second;
     }
 
-    partitionSol= bestEmb.bestLinkAnt->partitionSol;//ƒ‚ƒfƒ‹•ªŠ„•û–@‚Ì‰ğ
+    partitionSol= bestEmb.bestLinkAnt->partitionSol;
 
-    optStage = bestEmb.bestLinkAnt->partitionSol.first.size();//ƒXƒe[ƒW”
+    optStage = bestEmb.bestLinkAnt->partitionSol.first.size();
     relatedAppNum = bestEmb.bestLinkAnt->appIDs.size();
 }
 
-void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚ÆƒŒ[ƒgAenableAcandFlg‚ğXV
-    std::map<DDCGraph::Map::edge_descriptor, std::vector<int>> newInitCMap;//candFlg‚ªtrue‚ÌƒGƒbƒWƒfƒBƒXƒNƒŠƒvƒ^[‚ÆƒRƒA‚ğ‚à‚Â
-    std::map<DDCGraph::Map::edge_descriptor, std::vector<int>> newInitEMap;//enableFlg‚Ì‰Šú’l‚¾‚¯‚ğ‚Â‚â‚Â
+void AntColony::updateNewGraph(DDCGraph* d, Request* req) {
+    std::map<DDCGraph::Map::edge_descriptor, std::vector<int>> newInitCMap;
+    std::map<DDCGraph::Map::edge_descriptor, std::vector<int>> newInitEMap;
     auto edge_range = edges(req->graph);
     DDCGraph::Map::edge_descriptor ed;
     map<DDCGraph::Map::edge_descriptor, map<int, bool>> setFlg;
@@ -311,8 +305,8 @@ void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚
 
 
     int outStageNum = -1;
-    double dataPeriod = req->model->throughPut;//ƒf[ƒ^‚ªo—Í‚³‚ê‚éŠÔŠu
-    for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {//XV
+    double dataPeriod = req->model->throughPut;
+    for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {
 
         double traffic = (req->model->outDataSize[partitionSol.first[req->graph[req->graph[*first].adjNode[1]].number] - 1] / dataPeriod);
 
@@ -327,19 +321,18 @@ void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚
             setFlg[ed][e.second] = true;
             d->graph[ed].core[e.second].enable = d->enableinfo[ed][e.second];
             if (d->enableinfo[ed][e.second] == false) {
-                cout << "\n\n\n\n‚±‚±‚ª•\¦‚³‚ê‚é‚±‚Æ‚ ‚éH\n\n\n";
                 d->enableinfo[ed][e.second] = true;
             }
 
-            d->graph[ed].core[e.second].rate[e.first.first] = traffic;//ƒgƒ‰ƒqƒbƒN‚Íˆê•ñZ‚É‚µ‚©‹N‚«‚È‚¢
-            d->graph[ed].core[e.second].rate[e.first.second] = 0;//ƒgƒ‰ƒqƒbƒN‚Íˆê•ñZ‚É‚µ‚©‹N‚«‚È‚¢‚¾‚©‚çA0
-            if (d->graph[e.first.first].resource != 5) {//ƒpƒPƒbƒg‚¶‚á‚È‚©‚Á‚½‚ç
+            d->graph[ed].core[e.second].rate[e.first.first] = traffic;
+            d->graph[ed].core[e.second].rate[e.first.second] = 0;
+            if (d->graph[e.first.first].resource != 5) {
                 d->graph[ed].core[e.second].delay[e.first.first] = d->graph[ed].propagation + d->graph[e.first.first].trans_delay;
-            }else {//‚»‚¤‚¶‚á‚È‚¢‚Æ‚«(‚¢‚Á‚½‚ñOCS‚Ì‚İ‚ğ‘z’è‚·‚é‚Ì‚Å‚»‚Ì‚Ü‚Ü)
+            }else {
                 d->graph[ed].core[e.second].delay[e.first.first] = d->graph[ed].propagation + d->graph[e.first.first].trans_delay;
             }
 
-            if (d->graph[e.first.second].resource != 5) {//ƒpƒPƒbƒg‚¶‚á‚È‚©‚Á‚½‚ç
+            if (d->graph[e.first.second].resource != 5) {
                 d->graph[ed].core[e.second].delay[e.first.second] = d->graph[ed].propagation + d->graph[e.first.second].trans_delay;
             }
             else {
@@ -365,7 +358,7 @@ void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚
     auto edge_range2 = edges(d->graph);
     for (auto first = edge_range2.first, last = edge_range2.second; first != last; ++first) {
         if (d->allocCandinfo.find(*first) != d->allocCandinfo.end()) {
-            for (const auto& item : d->allocCandinfo[*first]) {//‚à‚Æ‚©‚ç‚ ‚éƒAƒƒbƒNƒLƒƒƒ“ƒh
+            for (const auto& item : d->allocCandinfo[*first]) {
                 if (item.second == true) {
                     d->graph[*first].core[item.first].candFlg = true;
                     newInitCMap[*first].push_back(item.first);
@@ -375,7 +368,7 @@ void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚
         }
 
         if (allocCandinfo.find(*first) != allocCandinfo.end()) {
-            for (const auto& item : allocCandinfo[*first]) {//V‹K‚ÌƒAƒƒbƒNƒLƒƒƒ“ƒh
+            for (const auto& item : allocCandinfo[*first]) {
                 if (item.second == true) {
                     d->graph[*first].core[item.first].candFlg = true;
                     newInitCMap[*first].push_back(item.first);
@@ -388,7 +381,7 @@ void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚
             for (const auto& item : d->nallocCandinfo[*first]) {
                 if (nallocCandinfo.find(*first) != nallocCandinfo.end()) {
                     if (nallocCandinfo[*first].find(item.first) != nallocCandinfo[*first].end()) {
-                        continue;//‚à‚¤ƒiƒƒbƒN‚Å‚Í‚È‚¢‚©‚ç
+                        continue;
                     }
                 }
 
@@ -416,7 +409,7 @@ void AntColony::updateNewGraph(DDCGraph* d, Request* req) {//ƒOƒ‰ƒt‚É‘Î‚µ‚Ä’x‰„‚
     }
 
     d->initCandInfoMap = newInitCMap;
-    d->initEnableInfoMap = newInitEMap;//‰Šú’l‚ğXV
+    d->initEnableInfoMap = newInitEMap;
 
 
 }

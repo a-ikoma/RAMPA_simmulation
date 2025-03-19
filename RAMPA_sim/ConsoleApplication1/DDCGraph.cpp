@@ -15,7 +15,7 @@ DDCGraph::DDCGraph(std::string filename, double gensui, double initFeromon, int 
     graph = createGraph();
     auto edge_range = edges(graph);
     for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {
-        for (int i = 0; i < graph[*first].core.size(); i++) {//未割当リンク
+        for (int i = 0; i < graph[*first].core.size(); i++) {
             int id = i;
             initCandInfoMap[*first].push_back(id);
             initEnableInfoMap[*first].push_back(id);
@@ -146,7 +146,7 @@ DDCGraph::DDCGraph(std::string filename, double gensui, double initFeromon, int 
 
 
     for (const auto& item : initCandInfoMap) {
-        for (auto i : item.second) {//コアのvectorを持つから
+        for (auto i : item.second) {
             if (graph[item.first].core[i].rate[graph[item.first].adjNode[1]] != 0 ||
                 graph[item.first].core[i].rate[graph[item.first].adjNode[0]] != 0
                 || graph[item.first].core[i].intCores.size() > 1) {
@@ -160,13 +160,13 @@ DDCGraph::DDCGraph(std::string filename, double gensui, double initFeromon, int 
     }
 
     for (const auto& item : initEnableInfoMap) {
-        for (auto i : item.second) {//コアのvectorを持つから
+        for (auto i : item.second) {
             enableinfo[item.first][i] = true;
         }
     }
 
 
-    std::map<int, std::pair<int, int>> flops_maxRes;//GPUの種類ごとの残余の最大値
+    std::map<int, std::pair<int, int>> flops_maxRes;
 
     for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
         if (graph[*first].resource != 0) {
@@ -229,24 +229,24 @@ DDCGraph::Map DDCGraph::createGraph() {
     while (!ifs.eof()) {
         std::getline(ifs, buf);
         data = buf;
-        if (data.find("link_sw") != std::string::npos) {//リンクの要素定義
-            vector<string> link = split_naive(data, ',');//[0]:行、[1]：列
+        if (data.find("link_sw") != std::string::npos) {
+            vector<string> link = split_naive(data, ',');
             propagationValue = stod(link[1].c_str());
 
         }
-        else if (data.find("link_resource") != std::string::npos) {//リンクの要素定義
-            vector<string> link = split_naive(data, ',');//[0]:行、[1]：列
+        else if (data.find("link_resource") != std::string::npos) {
+            vector<string> link = split_naive(data, ',');
             propagationValue_resource = stod(link[1].c_str());
 
         }
         else if (data.find("name") != std::string::npos) {
-            vector<string> cores = split_naive(data, ',');//[0]:行、[1]：列
+            vector<string> cores = split_naive(data, ',');
             graphName = cores[1];
         }
-        else if (data.find("bw") != std::string::npos) {//帯域幅（GBps)
+        else if (data.find("bw") != std::string::npos) {
             bandwidth = stod(split_naive(data, ',')[1]);
         }
-        else if (data.find("Csw") != std::string::npos) {//光回線スイッチのノード
+        else if (data.find("Csw") != std::string::npos) {
             vector<string> sw = split_naive(data, ',');
             int swP = 3;
             for (int i = 0; i < atoi(sw[1].c_str()); i++) {
@@ -284,15 +284,15 @@ DDCGraph::Map DDCGraph::createGraph() {
                 for (int j = 0; j < linkNum; j++) {
 
                     coreInfo a = { true,true,1, tmp ,1 ,{j} };
-                    a.delay[map[v2].number] = propagationValue;//伝播遅延を挿入しておく
-                    a.delay[map[v1].number] = propagationValue;//伝播遅延を挿入しておく
+                    a.delay[map[v2].number] = propagationValue;
+                    a.delay[map[v1].number] = propagationValue;
                     map[e].core[j] = a;
                 }
 
             }
 
         }
-        else if (data.find("gpu") != std::string::npos) {//演算リソースのノード
+        else if (data.find("gpu") != std::string::npos) {
             vector<string> calc = split_naive(data, ',');
             int swP = 7;
             int lastAdjNode = -1;
@@ -314,7 +314,7 @@ DDCGraph::Map DDCGraph::createGraph() {
 
                 count++;
                 auto vertex_range = vertices(map);
-                for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {//リソースとスイッチのリンク
+                for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
                     if (map[*first].number == atoi(calc[swP].c_str())) {
 
 
@@ -331,7 +331,7 @@ DDCGraph::Map DDCGraph::createGraph() {
                         map[*first].adjNode.push_back(map[v1].number);
                         map[e].adjNode.push_back(map[v1].number);
                         map[e].adjNode.push_back(map[*first].number);
-                        map[e].coreNumber = 32;//資源プールとのリンクは資源プールのパケットスイッチで処理できるコネクション数と資源プールモジュール内の資源数をもとに、必要な分だけ
+                        map[e].coreNumber = 32;
 
                         std::map<int, double> tmp;
                         tmp[map[*first].number] = 0;
@@ -340,8 +340,8 @@ DDCGraph::Map DDCGraph::createGraph() {
                         for (int j = 0; j < map[e].coreNumber; j++) {
 
                             coreInfo a = { true,true,1, tmp ,1 ,{j} };
-                            a.delay[map[*first].number] = propagationValue_resource;//伝播遅延を挿入しておく
-                            a.delay[map[v1].number] = propagationValue_resource;//伝播遅延を挿入しておく
+                            a.delay[map[*first].number] = propagationValue_resource;
+                            a.delay[map[v1].number] = propagationValue_resource;
                             map[e].core[j] = a;
                         }
 
@@ -350,7 +350,6 @@ DDCGraph::Map DDCGraph::createGraph() {
                     }
                 }
                 gpuIter.push_back(v1);
-                //packetIter.push_back(v1);
             }
         }
 
@@ -365,7 +364,7 @@ DDCGraph::Map DDCGraph::createGraph() {
         map[e].cost = 1;
 
         if (map[map[e].adjNode[0]].resource != 4 || map[map[e].adjNode[0]].resource != 4 ||
-            map[map[e].adjNode[1]].resource != 5 || map[map[e].adjNode[1]].resource != 5) {//資源とつながるリンクの場合
+            map[map[e].adjNode[1]].resource != 5 || map[map[e].adjNode[1]].resource != 5) {
             map[e].propagation = propagationValue_resource;
         }
         else {
@@ -389,19 +388,18 @@ void DDCGraph::updateResourceCost(std::map<Map::vertex_descriptor, double>* reso
     auto vertex_range = vertices(graph);
 
     for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
-        if (graph[*first].resource == 1) {//メモリ
+        if (graph[*first].resource == 1) {
             (*resourceCosts)[*first] = (double)(*residualData)[graph[*first].number];;
 
-        }else if (graph[*first].resource == 2) {//CPU
+        }else if (graph[*first].resource == 2) {
 
             (*resourceCosts)[*first] = ((double)(*residualData)[graph[*first].number] * graph[*first].flops);
         }
-        else if (graph[*first].resource == 3) {//GPU
+        else if (graph[*first].resource == 3) {
             if (allocatePolicy == 2) {
                 (*resourceCosts)[*first] = 1/((graph[*first].flops * 0.001) * graph[*first].capacity)+1;
             }else {
-                //(*resourceCosts)[*first] =  (graph[*first].flops *0.001)* graph[*first].capacity;//TFLOPS*GB
-                (*resourceCosts)[*first] = (graph[*first].flops * 0.001) * graph[*first].capacity* (double)(*residualData)[graph[*first].number];//TFLOPS*GB
+                (*resourceCosts)[*first] = (graph[*first].flops * 0.001) * graph[*first].capacity* (double)(*residualData)[graph[*first].number];
             }
 
             
@@ -437,10 +435,10 @@ void DDCGraph::updateLinkCost(std::map<Map::edge_descriptor, double>* edgeCosts,
             double rc1 = (*resourceCosts)[gpuPairs[i].first];
 
             double rc2 = (*resourceCosts)[gpuPairs[i].second];
-            if (shortestHop[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number] == shortestHopExceptEdge[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) {//そのリンクを通らない経路で最短経路が存在
+            if (shortestHop[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number] == shortestHopExceptEdge[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) {
                 cost += prod*(((double)shortestPaths[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number] - (double)shortestPathsExceptEdge[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) / (double)shortestPaths[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) * ((rc1 + rc2) / (double)shortestHop[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]);
             }
-            else if (shortestHop[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number] < shortestHopExceptEdge[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) {//そのリンクを通らない経路で最短経路は存在しない
+            else if (shortestHop[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number] < shortestHopExceptEdge[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) {
                 cost += prod*(((double)shortestPaths[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) / (double)shortestPaths[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]) * ((rc1 + rc2) / (double)shortestHop[*first][gpuPairs[i].first][graph[gpuPairs[i].second].number]);
             }
         }
@@ -452,7 +450,7 @@ void DDCGraph::updateLinkCost(std::map<Map::edge_descriptor, double>* edgeCosts,
 
 
 
-void DDCGraph::decreaseNodeFeromon() {//ノードのフェロモンを減衰
+void DDCGraph::decreaseNodeFeromon() {
     auto vertex_range = vertices(graph);
     for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
         graph[*first].feromon = graph[*first].feromon * decreaseRate;
@@ -463,9 +461,7 @@ void DDCGraph::decreaseNodeFeromon() {//ノードのフェロモンを減衰
 void DDCGraph::derive_shortest_path(Map::vertex_descriptor s, int edge1, int edge2,
     std::map<int, long long>& dis, std::map<int, long long>& dis2,
     std::map<int, int>& prev,
-    std::map<int, int>& count, map<int, int>& edgeCount) {// sは開始点
-    //Qは頂点の集合（もしくは優先度付きキュー）。
-    //u, v は頂点。d(v) はスタートとなる頂点からの最短経路の長さ。prev(v)は最短経路をたどる際の前の頂点。
+    std::map<int, int>& count, map<int, int>& edgeCount) {
     priority_queue<pair<long, int>, vector<pair<long, int>>, greater<pair<long, int>>> Q;
     priority_queue<pair<long, int>, vector<pair<long, int>>, greater<pair<long, int>>> Q2;
     auto vertex_range = vertices(graph);
@@ -497,7 +493,7 @@ void DDCGraph::derive_shortest_path(Map::vertex_descriptor s, int edge1, int edg
 
             if (dis[v1] > dis[v] + 1) {
                 dis[v1] = dis[v] + 1;
-                prev[v1] = v; // 頂点 v を通って e.to にたどり着いた
+                prev[v1] = v;
                 Q.emplace(dis[v1], v1);
                 count[v1] = count[v];
             }
@@ -537,9 +533,7 @@ void DDCGraph::derive_shortest_path(Map::vertex_descriptor s, int edge1, int edg
 
 
 
-void DDCGraph::deriveNodeDistance(Map::vertex_descriptor s, std::vector<int>& dis) {// sは開始点
-    //Qは頂点の集合（もしくは優先度付きキュー）。
-    //u, v は頂点。d(v) はスタートとなる頂点からの最短経路の長さ。prev(v)は最短経路をたどる際の前の頂点。
+void DDCGraph::deriveNodeDistance(Map::vertex_descriptor s, std::vector<int>& dis) {
     priority_queue<pair<long, int>, vector<pair<long, int>>, greater<pair<long, int>>> Q;
     auto vertex_range = vertices(graph);
     for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {
@@ -569,7 +563,7 @@ void DDCGraph::deriveNodeDistance(Map::vertex_descriptor s, std::vector<int>& di
 }
 
 
-int DDCGraph::calcCoreMapID(std::set<int> cores) {//コアの添え字を構成するコアの番号から導出する（最大値は16として）
+int DDCGraph::calcCoreMapID(std::set<int> cores) {
     int id = 0;
     for (auto x : cores) {
         id += x;
@@ -608,7 +602,7 @@ void DDCGraph::setAllocateResourceRange() {
 }
 
 
-void DDCGraph::eraseLightPath() {//ライトパスを削除
+void DDCGraph::eraseLightPath() {
 
     for (int i = 0; i < gpuIter.size(); i++) {
         for (auto s : graph[gpuIter[i]].adjNode) {
@@ -633,7 +627,7 @@ void DDCGraph::setAllocCandInfo() {
     nallocCandinfo.clear();
 
     for (const auto& item : initCandInfoMap) {
-        for (auto i : item.second) {//コアのvectorを持つから
+        for (auto i : item.second) {
             if (graph[item.first].core[i].rate[graph[item.first].adjNode[1]] != 0 ||
                 graph[item.first].core[i].rate[graph[item.first].adjNode[0]] != 0
                 || graph[item.first].core[i].intCores.size() > 1) {

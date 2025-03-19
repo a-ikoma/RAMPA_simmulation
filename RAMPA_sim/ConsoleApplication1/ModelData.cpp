@@ -40,44 +40,36 @@ void ModelData::setData(std::string filename) {
         std::cin.get();
         return;
     }
-    /*
-ID,1
-OPE,4
-FLOPs,10,20,30,40
-MEM,2,2,2,2
-OUT,5,5,5,5
-TIME,40000
-THROUGH,10
-*/
+
     std::string buf;
     while (!ifs.eof()) {
         std::getline(ifs, buf);
-        vector<string> data = split_modelData(buf, ',');//[0]:行、[1]：列
-        if (buf.find("ID") != std::string::npos) {//モデルのID
+        vector<string> data = split_modelData(buf, ',');
+        if (buf.find("ID") != std::string::npos) {
             ID= atoi(data[1].c_str());
         }
-        else if (buf.find("OPE") != std::string::npos) {//オペレーションの数
+        else if (buf.find("OPE") != std::string::npos) {
             opeNum = atoi(data[1].c_str());
         }
-        else if (buf.find("FLOPs") != std::string::npos) {//各オペレーションのFLOPs
+        else if (buf.find("FLOPs") != std::string::npos) {
             for (int i = 1; i < opeNum+1;i++) {
                 flopNum.push_back(stod(data[i].c_str()));
             }
         }
-        else if (buf.find("MEM") != std::string::npos) {//各オペレーションの必要メモリ
+        else if (buf.find("MEM") != std::string::npos) {
             for (int i = 1; i < opeNum + 1; i++) {
                 memConsume.push_back(stod(data[i].c_str()));
             }
         }
-        else if (buf.find("OUT") != std::string::npos) {//各オペレーションの出力データサイズ
+        else if (buf.find("OUT") != std::string::npos) {
             for (int i = 1; i < opeNum + 1; i++) {
                 outDataSize.push_back(stod(data[i].c_str()));
             }
         }
-        else if (buf.find("TIME") != std::string::npos) {//応答時間要件
+        else if (buf.find("TIME") != std::string::npos) {
             acceptableTime = stod(data[1].c_str());
         }
-        else if (buf.find("THROUGH") != std::string::npos) {//スループット要件
+        else if (buf.find("THROUGH") != std::string::npos) {
             throughPut = stod(data[1].c_str());
         }
 

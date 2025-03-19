@@ -39,8 +39,8 @@ LinkAnt::LinkAnt(DDCGraph* ddcGraph, Request* req, std::map<int, int> map, int l
 
 	baseCost = 9999999;
 
-	if (ddcGraph->allocatePolicy == 2) {//rate * D) / c=1
-		for (int i = 0; i < 4; i++) {//正規化のため
+	if (ddcGraph->allocatePolicy == 2) {
+		for (int i = 0; i < 4; i++) {
 			maxTraffic[i] = (i + 1) / 0.003;
 		}
 	}
@@ -55,7 +55,7 @@ bool LinkAnt::LinkEmbedding(std::map<DDCGraph::Map::edge_descriptor, std::map<in
 	std::vector < std::pair<DDCGraph::Map::edge_descriptor, int>> curLightPath;
 
 
-	for (auto proc : req->task_proc[1]) {//プロセスごとに一度分類
+	for (auto proc : req->task_proc[1]) {
 		for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {
 
 			if (req->graph[*first].process[0] == proc) {
@@ -75,7 +75,7 @@ bool LinkAnt::LinkEmbedding(std::map<DDCGraph::Map::edge_descriptor, std::map<in
 			s = resourceMap[b];
 			t = resourceMap[a];
 
-			resourcePairPropagation[b][a] = 0;//資源間の伝搬遅延記録の初期化
+			resourcePairPropagation[b][a] = 0;
 			currentResourcePairPropagation = 0;
 
 			std::vector<int> passNode;
@@ -89,7 +89,7 @@ bool LinkAnt::LinkEmbedding(std::map<DDCGraph::Map::edge_descriptor, std::map<in
 			resourcePairPropagation[b][a] = currentResourcePairPropagation;
 			currentResourcePairPropagation = 0;
 
-			if (missFlg) {//経路は見つからなかった
+			if (missFlg) {
 				return false;
 			}
 
@@ -138,17 +138,17 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 
 	passNode.push_back(source);
 
-	if (ddcGraph->graph[source].number == ddcGraph->graph[target].number) {//引数はtと等しいか、等しかったら終わり
+	if (ddcGraph->graph[source].number == ddcGraph->graph[target].number) {
 
-		if (hops == 0) {//同一プールの資源ボード上のGPUである場合、資源からOCSとOCSから資源への遅延を加算
+		if (hops == 0) {
 			DDCGraph::Map::edge_descriptor df = edge(source, ddcGraph->graph[source].adjNode[0], ddcGraph->graph).first;
 			currentResourcePairPropagation += ddcGraph->graph[df].propagation + ddcGraph->graph[source].trans_delay + ddcGraph->graph[ddcGraph->graph[source].adjNode[0]].trans_delay + ddcGraph->graph[df].propagation;
 		}
 
 		return;
 	}
-	vector<pair<DDCGraph::Map::edge_descriptor, int>> nallocCand;//未割り当てリンク候補
-	vector<pair<DDCGraph::Map::edge_descriptor, int>> allocCand;//割り当てリンク候補
+	vector<pair<DDCGraph::Map::edge_descriptor, int>> nallocCand;
+	vector<pair<DDCGraph::Map::edge_descriptor, int>> allocCand;
 
 
 	if (hops >= hopLimit) {
@@ -157,7 +157,7 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 	}
 
 
-	if (ddcGraph->graph[source].resource == 4 && inLghtPath == true) {//今回線スイッチかつ、光パスの中にいるとき、
+	if (ddcGraph->graph[source].resource == 4 && inLghtPath == true) {
 		if (curLightPath.size() == 0) {
 			cout << "おかしいnewlightPaths.size()が\n";
 			exit(1);
@@ -166,7 +166,7 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 	}
 	else {
 
-		searchCand(ddcGraph, req, source, nallocCand, allocCand, vedge, passNode, edgeCosts, hops, inLghtPath, target);//候補の決定
+		searchCand(ddcGraph, req, source, nallocCand, allocCand, vedge, passNode, edgeCosts, hops, inLghtPath, target);
 	}
 
 	if ((nallocCand.size() == 0 && allocCand.size() == 0) || hops >= hopLimit) {
@@ -222,7 +222,6 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 		}
 
 		if ((rnd >= bottom && rnd <= bottom + tmp) || (allocCand.size() == 0 && i == nallocCand.size() - 1)) {
-			//埋め込み処理
 			int a = ddcGraph->graph[source].number;
 			if (a == ddcGraph->graph[nallocCand[i].first].adjNode[0]) {
 				updateCandInfo(ddcGraph, req, nallocCand[i].first, nallocCand[i].second, source, vedge);
@@ -313,17 +312,15 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 		}
 	}
 
-	//決定したリンクの伝搬遅延（リンクの伝搬遅延＋スイッチ遅延）を記録
-
 	currentResourcePairPropagation += ddcGraph->graph[selectedLink].propagation + ddcGraph->graph[source].trans_delay;
 
-	if (ddcGraph->graph[source].resource == 4 && inLghtPath == true) {//現在地が光回線スイッチで光パスに突入しているとき
+	if (ddcGraph->graph[source].resource == 4 && inLghtPath == true) {
 		selectLink(settingFeromons, ddcGraph, req, nextSource, target, vedge, passNode, edgeCosts, hops + 1, true, curLightPath, lightPathHop + 1);
 	}
-	else if (ddcGraph->graph[source].resource == 4 && inLghtPath == false) {//現在地が光回線スイッチで光パスに突入していないとき
+	else if (ddcGraph->graph[source].resource == 4 && inLghtPath == false) {
 		newlightPaths[curLightPathSourceEdge][curLightPathSourceCore].push_back({ selectedLink,selectedLinkCore });
-		if (ddcGraph->graph[nextSource].resource != 4) {//次のノードが資源かパケットで一度終端される時、逆の光パスも設定しておく
-			if (newlightPaths[curLightPathSourceEdge][curLightPathSourceCore].size()!=1) {//1ホップの光パスだとこの処理はひつようないので
+		if (ddcGraph->graph[nextSource].resource != 4) {
+			if (newlightPaths[curLightPathSourceEdge][curLightPathSourceCore].size()!=1) {
 				std::vector<std::pair<DDCGraph::Map::edge_descriptor, int>> rLightPath(newlightPaths[curLightPathSourceEdge][curLightPathSourceCore].rbegin(), newlightPaths[curLightPathSourceEdge][curLightPathSourceCore].rend());
 				newlightPaths[selectedLink][selectedLinkCore] = rLightPath;
 			}
@@ -331,12 +328,12 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 		selectLink(settingFeromons, ddcGraph, req, nextSource, target, vedge, passNode, edgeCosts, hops + 1, false, curLightPath, -1);
 	}
 	else {
-		if (selectedFromAllocCand == true) {//パケットまたは資源で、既に設定される光パスを利用するとき
-			curLightPathSourceEdge = selectedLink;//現在の光パスのソースリンクとコアを保存
+		if (selectedFromAllocCand == true) {
+			curLightPathSourceEdge = selectedLink;
 			curLightPathSourceCore = selectedLinkCore;
 			bool motokaraFlg = false;
 			if ((*tmp_lightPaths).find(selectedLink) != (*tmp_lightPaths).end()) {
-				if ((*tmp_lightPaths)[selectedLink].find(selectedLinkCore) != (*tmp_lightPaths)[selectedLink].end()) {//元から設定されていた光パスの場合
+				if ((*tmp_lightPaths)[selectedLink].find(selectedLinkCore) != (*tmp_lightPaths)[selectedLink].end()) {
 					selectLink(settingFeromons, ddcGraph, req, nextSource, target, vedge, passNode, edgeCosts, hops + 1, true, (*tmp_lightPaths)[selectedLink][selectedLinkCore], 1);
 					motokaraFlg = true;
 				}
@@ -345,11 +342,11 @@ void LinkAnt::selectLink(std::map<DDCGraph::Map::edge_descriptor, std::map<int, 
 				selectLink(settingFeromons, ddcGraph, req, nextSource, target, vedge, passNode, edgeCosts, hops + 1, true, newlightPaths[selectedLink][selectedLinkCore], 1);
 			}
 		}
-		else {//パケットまたは資源で、新しい光パスを設定するとき
-			newlightPaths[selectedLink][selectedLinkCore] = { {selectedLink,selectedLinkCore} };//新しい光パスを追加
-			curLightPathSourceEdge = selectedLink;//現在の光パスのソースリンクとコアを保存
+		else {
+			newlightPaths[selectedLink][selectedLinkCore] = { {selectedLink,selectedLinkCore} };
+			curLightPathSourceEdge = selectedLink;
 			curLightPathSourceCore = selectedLinkCore;
-			std::vector < std::pair<DDCGraph::Map::edge_descriptor, int>> tmpLight;//仮置きのからの集合
+			std::vector < std::pair<DDCGraph::Map::edge_descriptor, int>> tmpLight;
 			selectLink(settingFeromons, ddcGraph, req, nextSource, target, vedge, passNode, edgeCosts, hops + 1, false, tmpLight, -1);
 		}
 	}
@@ -361,22 +358,19 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 	ReqGraph::ReqMap::edge_descriptor vedge, std::vector<int> passNode, std::map<DDCGraph::Map::edge_descriptor, double>* edgeCosts, int hops, bool inLghtPath, int curTarget) {
 
 	DDCGraph::Map::edge_descriptor e;
-	vector<pair<DDCGraph::Map::edge_descriptor, vector<int>>> candEdge;//リンクとそのコア番号の組を候補として保存していく
+	vector<pair<DDCGraph::Map::edge_descriptor, vector<int>>> candEdge;
 
 
 	int mode = -1;//以下の３パターンを識別する値
 
-	if (ddcGraph->graph[source].resource == 4 && inLghtPath == false) {//今、光回線スイッチにいて、特定の光パスにいないとき、
-		//未割当リンクの中から自由に選びましょう（割り当て済みリンクを排除した状態で今までと一緒）
+	if (ddcGraph->graph[source].resource == 4 && inLghtPath == false) {
 		mode = 1;
 
-	}else if (ddcGraph->graph[source].resource != 4) {//資源またはパケットスイッチにいるとき、
-		//自由に選択しよう(ただし、特定の資源へつながる光パスへつながる場合は注意しよう)
+	}else if (ddcGraph->graph[source].resource != 4) {
 		mode = 2;
 	}
 
-	if (mode == 1) {//資源へとつながるリンクを選択するのはmode1の時のみ、なぜなら資源は回線スイッチとのみつながるから
-		//そして、未割り当てリンクしか使えない。なぜなら光パス関係ないから
+	if (mode == 1) {
 		bool oneFindFlg = false;
 		for (int i = 0; i < ddcGraph->graph[source].adjNode.size(); i++) {
 			bool passFlg = false;
@@ -419,10 +413,9 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 			map<DDCGraph::Map::edge_descriptor, vector<int>> tmpACand;
 			map<DDCGraph::Map::edge_descriptor, vector<int>> tmpNCand;
 
-			//ターゲットのノードが一回のホップで行けるとき、選択的に選ぶ必要はないので、リソースに行くまでのコアだけ選ぶという処理をここでする。
 			if (resourceMap[req->graph[vedge].adjNode[0]] == ddcGraph->graph[source].adjNode[i]
-				|| resourceMap[req->graph[vedge].adjNode[1]] == ddcGraph->graph[source].adjNode[i]) {//宛先ノードが隣接ノードにある場合s
-				e = boost::edge(ddcGraph->graph[source].number, ddcGraph->graph[source].adjNode[i], ddcGraph->graph).first;//隣接リンクを取得
+				|| resourceMap[req->graph[vedge].adjNode[1]] == ddcGraph->graph[source].adjNode[i]) {
+				e = boost::edge(ddcGraph->graph[source].number, ddcGraph->graph[source].adjNode[i], ddcGraph->graph).first;
 
 				bool ocupyFlg = false;
 
@@ -430,7 +423,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 					for (const auto& item : (*nallocCandinfo)[e]) {
 						if (linkant_newAllocatedLink.find(e) != linkant_newAllocatedLink.end()) {
 							if (linkant_newAllocatedLink[e].find(item.first) != linkant_newAllocatedLink[e].end()) {
-								continue;//もうナロックではないから
+								continue;
 							}
 						}
 						if (item.second == true && baseCost > allCost + allocatedResourceCost + (*edgeCosts)[e] &&
@@ -472,17 +465,16 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 			continue;
 		}
 
-		if (distance[ddcGraph->graph[source].adjNode[i]] + hops > hopLimit) {//ホップの上限超えてたら
+		if (distance[ddcGraph->graph[source].adjNode[i]] + hops > hopLimit) {
 			continue;
 		}
 
 		bool ocupyFlg = false;
-		e = boost::edge(ddcGraph->graph[source].number, ddcGraph->graph[source].adjNode[i], ddcGraph->graph).first;//隣接リンクを取得
+		e = boost::edge(ddcGraph->graph[source].number, ddcGraph->graph[source].adjNode[i], ddcGraph->graph).first;
 
-		if ((*allocCandinfo).find(e) != (*allocCandinfo).end() && mode == 2) {//候補となる割り当て済みリンクがあるということ
+		if ((*allocCandinfo).find(e) != (*allocCandinfo).end() && mode == 2) {
 
-			for (const auto& item : (*allocCandinfo)[e]) {//* + (distance[ddcGraph->graph[source].adjNode[i]] * ddcGraph->graph[e].propagation)*/ 
-				//ここは元から設定されていた割り当て済みリンクなので(*tmp_lightPaths)をそのまま使っても大丈夫
+			for (const auto& item : (*allocCandinfo)[e]) {
 				if (item.second == true) {
 					DDCGraph::Map::edge_descriptor tmpE = (*tmp_lightPaths)[e][item.first][(*tmp_lightPaths)[e][item.first].size() - 1].first;
 					if ((*tmp_lightPaths)[e][item.first].size() <= 1) {
@@ -493,7 +485,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 					int dst1 = ddcGraph->graph[tmpE].adjNode[0];
 					int dst2 = ddcGraph->graph[tmpE].adjNode[1];
 
-					int endNode;//光パスの終端ノード
+					int endNode;
 
 					if (ddcGraph->graph[dst1].resource != 4) {
 						endNode = dst1;
@@ -507,7 +499,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 					}
 
 					if (((ddcGraph->graph[dst1].resource != 4 && ddcGraph->graph[dst1].resource != 5) && (dst1 != resourceMap[req->graph[vedge].adjNode[0]] && dst1 != resourceMap[req->graph[vedge].adjNode[1]])) ||
-						(ddcGraph->graph[dst2].resource != 4 && ddcGraph->graph[dst2].resource != 5) && (dst2 != resourceMap[req->graph[vedge].adjNode[0]] && dst2 != resourceMap[req->graph[vedge].adjNode[1]])) {//光パスで関係ない資源へ行っちゃうとき
+						(ddcGraph->graph[dst2].resource != 4 && ddcGraph->graph[dst2].resource != 5) && (dst2 != resourceMap[req->graph[vedge].adjNode[0]] && dst2 != resourceMap[req->graph[vedge].adjNode[1]])) {
 						continue;
 					}
 
@@ -519,7 +511,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 
 
 					tmpACand[e].push_back(item.first);
-					if (ddcGraph->graph[e].core[item.first].useAppRate.size() == 0 && ddcGraph->graph[e].core[item.first].coreNum == 1) {//占有している割り当て済みリンクがあれば未割り当てリンクをあえて割り当てる必要はないので
+					if (ddcGraph->graph[e].core[item.first].useAppRate.size() == 0 && ddcGraph->graph[e].core[item.first].coreNum == 1) {
 						ocupyFlg = true;
 						break;
 					}
@@ -529,7 +521,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 
 		if (newAllocCandinfo.find(e) != newAllocCandinfo.end() && mode == 2) {
 
-			for (const auto& item : newAllocCandinfo[e]) {//* + (distance[ddcGraph->graph[source].adjNode[i]] * ddcGraph->graph[e].propagation)*/ 
+			for (const auto& item : newAllocCandinfo[e]) {
 
 				if (item.second == true) {
 
@@ -538,7 +530,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 					int dst1 = ddcGraph->graph[tmpE].adjNode[0];
 					int dst2 = ddcGraph->graph[tmpE].adjNode[1];
 
-					int endNode;//光パスの終端ノード
+					int endNode;
 
 					if (ddcGraph->graph[dst1].resource != 4) {
 						endNode = dst1;
@@ -552,7 +544,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 					}
 
 					if (((ddcGraph->graph[dst1].resource != 4 && ddcGraph->graph[dst1].resource != 5) && (dst1 != resourceMap[req->graph[vedge].adjNode[0]] && dst1 != resourceMap[req->graph[vedge].adjNode[1]])) ||
-						(ddcGraph->graph[dst2].resource != 4 && ddcGraph->graph[dst2].resource != 5) && (dst2 != resourceMap[req->graph[vedge].adjNode[0]] && dst2 != resourceMap[req->graph[vedge].adjNode[1]])) {//光パスで関係ない資源へ行っちゃうとき
+						(ddcGraph->graph[dst2].resource != 4 && ddcGraph->graph[dst2].resource != 5) && (dst2 != resourceMap[req->graph[vedge].adjNode[0]] && dst2 != resourceMap[req->graph[vedge].adjNode[1]])) {
 						continue;
 					}
 
@@ -561,7 +553,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 					}
 
 					tmpACand[e].push_back(item.first);
-					if (ddcGraph->graph[e].core[item.first].useAppRate.size() == 0 && ddcGraph->graph[e].core[item.first].coreNum == 1) {//占有している割り当て済みリンクがあれば未割り当てリンクをあえて割り当てる必要はないので
+					if (ddcGraph->graph[e].core[item.first].useAppRate.size() == 0 && ddcGraph->graph[e].core[item.first].coreNum == 1) {
 						ocupyFlg = true;
 						break;
 					}
@@ -575,7 +567,7 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 
 				if (linkant_newAllocatedLink.find(e) != linkant_newAllocatedLink.end()) {
 					if (linkant_newAllocatedLink[e].find(item.first) != linkant_newAllocatedLink[e].end()) {
-						continue;//もうナロックではないから
+						continue;
 					}
 				}
 
@@ -607,9 +599,8 @@ void LinkAnt::searchCand(DDCGraph* ddcGraph, Request* req, int source,
 }
 
 
-void LinkAnt::initCandInfo(DDCGraph* ddcGraph, Request* req) {//割り当て候補enbleとallocInfoの初期設定
-	//DDCGraphが情報を持っておくかたち
-	tmp_lightPaths = &(ddcGraph->lightPaths);//ライトパス情報をこぴー
+void LinkAnt::initCandInfo(DDCGraph* ddcGraph, Request* req) {
+	tmp_lightPaths = &(ddcGraph->lightPaths);
 	allocCandinfo = &(ddcGraph->allocCandinfo);
 	nallocCandinfo = &(ddcGraph->nallocCandinfo);
 	enableinfo = &(ddcGraph->enableinfo);
@@ -617,10 +608,10 @@ void LinkAnt::initCandInfo(DDCGraph* ddcGraph, Request* req) {//割り当て候補enbl
 }
 
 void LinkAnt::embIntLink(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::edge_descriptor e, int coreNum,
-	int source, int target, ReqGraph::ReqMap::edge_descriptor vedge) {//統合リンクと割り当て済みリンクが選択されたとき
+	int source, int target, ReqGraph::ReqMap::edge_descriptor vedge) {
 
 	bool firstFlg = false;
-	if (newAppRate[e][coreNum].first[source] == 0 && newAppRate[e][coreNum].first[target] == 0) {//どっちも０だから初めてこのリンクに埋め込み
+	if (newAppRate[e][coreNum].first[source] == 0 && newAppRate[e][coreNum].first[target] == 0) {
 		firstFlg = true;
 		newAppRate[e][coreNum].first[source] = req->graph[vedge].read_rate;
 		newAppRate[e][coreNum].first[target] = req->graph[vedge].write_rate;
@@ -633,7 +624,7 @@ void LinkAnt::embIntLink(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::edge_d
 	}
 
 
-	if (ddcGraph->graph[e].core[coreNum].coreNum <= 1 || ddcGraph->graph[e].core[coreNum].enable == true) {//統合リンクではない
+	if (ddcGraph->graph[e].core[coreNum].coreNum <= 1 || ddcGraph->graph[e].core[coreNum].enable == true) {
 		checkAllocApp(ddcGraph, e, coreNum);
 		if (useAppRates[e][coreNum].size() == 0 && ddcGraph->graph[e].core[coreNum].useAppRate.size() != 0) {
 			useAppRates[e][coreNum] = ddcGraph->graph[e].core[coreNum].useAppRate;
@@ -683,7 +674,7 @@ void LinkAnt::embIntLink(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::edge_d
 		return;
 	}
 
-	if (firstFlg == false) {//一回入ってるから
+	if (firstFlg == false) {
 		tmpRate[e][coreNum][source] = newAppRate[e][coreNum].first[source];
 		tmpRate[e][coreNum][target] = newAppRate[e][coreNum].first[target];
 		for (int t = 0; t < useAppRates[e][coreNum].size(); t++) {
@@ -703,14 +694,10 @@ void LinkAnt::embIntLink(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::edge_d
 		std::map<int, double> tDelay;
 		tDelay[source] = late;
 
-
 		tDelay[target] = ddcGraph->graph[e].propagation + ddcGraph->graph[target].trans_delay;
 		
-
-
-		//tDelay[target] = responseTime(rate2, ddcGraph->graph[e].core[coreNum].coreNum, ddcGraph->graph[target].trans_delay, ddcGraph->graph[target].cutthrough_delay, ddcGraph->graph[e].core[coreNum].useAppRate.size()) + ddcGraph->graph[e].propagation;
 		for (auto coreOfInt : coreList[e][coreNum]) {
-			checkDelay[e][coreOfInt] = tDelay;//エッジマップの調整面倒だからここで代入しておく
+			checkDelay[e][coreOfInt] = tDelay;
 		}
 		checkDelay[e][coreNum] = tDelay;
 		
@@ -729,15 +716,10 @@ void LinkAnt::embIntLink(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::edge_d
 		return;
 	}
 
-	cout << "統合を禁止しているからここにはこないはず。いったんparam.txtをチェック";
-	exit(1);
-
-
-
 }
 
 void LinkAnt::updateCandInfo(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::edge_descriptor e, int coreNum,
-	int source, ReqGraph::ReqMap::edge_descriptor vedge) {//未割当のリンクを割り当てたときに候補となる統合リンクを探す
+	int source, ReqGraph::ReqMap::edge_descriptor vedge) {
 
 	linkant_newAllocatedLink[e][coreNum] = true;
 	newAllocCandinfo[e][coreNum] = true;
@@ -775,12 +757,12 @@ void LinkAnt::updateCandInfo(DDCGraph* ddcGraph, Request* req, DDCGraph::Map::ed
 
 }
 
-void LinkAnt::updateRate(DDCGraph* ddcGraph, Request* req) {//割り当て情報をもとにレート情報を更新
+void LinkAnt::updateRate(DDCGraph* ddcGraph, Request* req) {
 	auto edge_range = edges(req->graph);
 	DDCGraph::Map::edge_descriptor ed;
 
 	map<DDCGraph::Map::edge_descriptor, map<int, bool>> edgeFlg;
-	for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {//更新
+	for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {
 		for (auto e : EdgeMap[req->graph[*first].number]) {
 			ed = edge(e.first.first, e.first.second, ddcGraph->graph).first;
 			if (edgeFlg[ed][e.second] == true) {
@@ -795,8 +777,8 @@ void LinkAnt::updateRate(DDCGraph* ddcGraph, Request* req) {//割り当て情報をもと
 
 
 double LinkAnt::feromonValue(std::map<DDCGraph::Map::edge_descriptor, std::map<int, double>>* settingFeromons,
-	DDCGraph::Map::edge_descriptor e, int coreNum) {//フェロモンの値を取得
-	if ((*settingFeromons).find(e) == (*settingFeromons).end()) {//存在しないなら
+	DDCGraph::Map::edge_descriptor e, int coreNum) {
+	if ((*settingFeromons).find(e) == (*settingFeromons).end()) {
 		return baseFeromon;
 	}
 

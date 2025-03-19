@@ -75,7 +75,7 @@ vector<string> split_naive3(const string& s, char delim) {
     return elems;
 }
 
-void Request::createGraph(){//—v‹ƒOƒ‰ƒt‚ğì¬
+void Request::createGraph(){
     string data;
     map<string, vector<string>> proc_node;
     std::ifstream ifs(file);
@@ -89,7 +89,6 @@ void Request::createGraph(){//—v‹ƒOƒ‰ƒt‚ğì¬
 
     std::string buf;
     string graphText;
-    //cout << "—v‹ƒeƒLƒXƒgF\n" << graphText<<"\n";
     int count = 0;
     id = -1;
     while (!ifs.eof()) {
@@ -115,7 +114,7 @@ void Request::createGraph(){//—v‹ƒOƒ‰ƒt‚ğì¬
             int cnt = 0;
             for (int i = 0; i < proc_node[proc[1] + "_recv"].size();i++) {
                 for (int j = 0; j < proc_node[proc[1] + "_exe"].size(); j++) {
-                    if (atoi(proc_node[proc[1] + "_recv"][i].c_str()) >= 2) {//ƒvƒƒZƒX3‚¾‚¯‚·‚×‚Ä‚ğ‚Â‚¯‚È‚¢
+                    if (atoi(proc_node[proc[1] + "_recv"][i].c_str()) >= 2) {
                         if (j == cnt) {
                             graphText += "link," + proc_node[proc[1] + "_recv"][i] + "," + proc_node[proc[1] + "_exe"][j] + "," + proc[2] + "," + proc[3] + "," + proc[1] + "#";
                             cnt++;
@@ -127,9 +126,6 @@ void Request::createGraph(){//—v‹ƒOƒ‰ƒt‚ğì¬
                         graphText += "link," + proc_node[proc[1] + "_recv"][i] + "," + proc_node[proc[1] + "_exe"][j] + "," + proc[2] + "," + proc[3] + "," + proc[1] + "#";
 
                     }
-                    //graphText += "link," + proc_node[proc[1] + "_recv"][i] + "," + proc_node[proc[1] + "_exe"][j] + "," + proc[2] + "," + proc[3] + "," + proc[1] + "#";
-                    //graphText += "link," + proc_node[proc[1] + "_recv"][i] + "," + proc_node[proc[1] + "_exe"][j] + "," + proc[2] + "," + proc[3] + "," + proc[1] + "#";
-                    //graphText += "link," + proc_node[proc[1] + "_recv"][i] + "," + proc_node[proc[1] + "_exe"][j] + "\n";
                 }
             }
             proc_clock[atoi(proc[1].c_str())] = stod(proc[4].c_str());
@@ -176,7 +172,7 @@ std::map<int, std::vector<int>> Request::createTask(){
             for (int i = 0; i < task_proc2.size(); i++) {
                 task[atoi(task_gen[1].c_str())].push_back(atoi(task_proc2[i].c_str()));
             }
-            acceptableTime = stod(task_gen[3].c_str());//§ŒÀŠÔ‚ğİ’è
+            acceptableTime = stod(task_gen[3].c_str());
             cout << task_gen[3] << "\n";
             tasks.push_back(atoi(task_gen[1].c_str()));
         }
@@ -189,10 +185,10 @@ std::map<int, std::vector<int>> Request::createTask(){
 int vector_finder(std::vector<int> vec, int number) {
     auto itr = std::find(vec.begin(), vec.end(), number);
     size_t index = std::distance(vec.begin(), itr);
-    if (index != vec.size()) { // ”­Œ©‚Å‚«‚½‚Æ‚«
+    if (index != vec.size()) {
         return 1;
     }
-    else { // ”­Œ©‚Å‚«‚È‚©‚Á‚½‚Æ‚«
+    else {
         return 0;
     }
 }
@@ -203,22 +199,19 @@ int vector_finder(std::vector<int> vec, int number) {
 
 void Request::createLinkTask() {
     for (int i = 0; i < task_num; i++) {
-        //task_proc[i+1][j]‚ÅŠeƒvƒƒZƒX‚ÉƒAƒNƒZƒX
         std::vector<std::pair<int, int>> linkSet;
         auto edge_range = edges(graph);
         int count = 0;
         for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {
-            if (vector_finder(graph[*first].process, task_proc[i + 1][0])) {//ƒvƒƒZƒX’S“–‚·‚é‰¼‘zƒŠƒ“ƒN‚ª‚ ‚ê‚Î
+            if (vector_finder(graph[*first].process, task_proc[i + 1][0])) {
                 std::vector<std::pair<int, int>> tmp = linkSet;
                 tmp.push_back(std::make_pair(graph[*first].adjNode[0], graph[*first].adjNode[1]));
-                if (0 == task_proc[i + 1].size() - 1) {//‘S‚ÄOK‚¾‚©‚ç
+                if (0 == task_proc[i + 1].size() - 1) {
                     link_task[i + 1].push_back(tmp);
-                    //graph[*first].nextProcEdges.push_back()
                 }
                 else {
                     int nodeNum1 = graph[*first].adjNode[0];
                     int nodeNum2 = graph[*first].adjNode[1];
-                    //graph[*first].nextProcEdges.push_back(std::make_pair(nodeNum1, nodeNum2));
                     search(i + 1, 1, tmp, nodeNum1, nodeNum2);
                 }
 
@@ -231,7 +224,6 @@ void Request::createLinkTask() {
 
 
 void Request::search(int taskNum, int seq, std::vector<std::pair<int, int>> linkSet, int n1, int n2) {//seq‚ÍƒvƒƒZƒXƒiƒ“ƒo[
-    //task_proc[taskNum][seq]‚ÅƒvƒƒZƒX”Ô†‚ÉƒAƒNƒZƒX
     ReqGraph::ReqMap::edge_descriptor preE = edge(n1, n2, graph).first;
 
     auto edge_range = edges(graph);
@@ -239,11 +231,11 @@ void Request::search(int taskNum, int seq, std::vector<std::pair<int, int>> link
     for (auto first = edge_range.first, last = edge_range.second; first != last; ++first) {
         int s = graph[*first].adjNode[0];
         int t = graph[*first].adjNode[1];
-        if (vector_finder(graph[*first].process, task_proc[taskNum][seq]) && (s == n1 || s == n2 || t == n1 || t == n2)) {//ƒvƒƒZƒX’S“–‚·‚é‰¼‘zƒŠƒ“ƒN‚ª‚ ‚ê‚Î‚©‚Â‘O‚Ì‰¼‘zƒŠƒ“ƒN‚Æ‚Â‚È‚ª‚Á‚Ä‚¢‚éƒŠƒ“ƒN‚¾‚Á‚½‚ç
+        if (vector_finder(graph[*first].process, task_proc[taskNum][seq]) && (s == n1 || s == n2 || t == n1 || t == n2)) {
             std::vector<std::pair<int, int>> tmp = linkSet;
             tmp.push_back(std::make_pair(s, t));
             graph[preE].nextProcEdges.push_back(std::make_pair(s, t));
-            if (seq == task_proc[taskNum].size() - 1) {//‘S‚ÄOK‚¾‚©‚ç
+            if (seq == task_proc[taskNum].size() - 1) {
                 link_task[taskNum].push_back(tmp);
             }else {
                 search(taskNum, seq + 1, tmp, s, t);
@@ -256,27 +248,14 @@ void Request::search(int taskNum, int seq, std::vector<std::pair<int, int>> link
 
 
 
-void Request::makeRequestFromStages(int stages) {//ƒXƒe[ƒW”‚²‚Æ‚ÌƒŠƒNƒGƒXƒgì¬
-    //‚Ü‚¸AƒXƒe[ƒW”‚²‚Æ‚ÌRequest‚Ì¶¬•¶š—ñ‚ğì¬
-    /*
-        APPID, 1
-        NODE, 1, 1, gpu, 1
-        NODE, 1 - 2, 0 - 1, gpu, 1
-        NODE, 2 - 3, 0 - 1, gpu, 1
-        PROC, 1, 0, 0, 0, 1, 1
-        PROC, 2, 0, 0, 0, 1, 1
-        PROC, 3, 0, 0, 0, 1, 1
-        TASK, 1, 1 - 2 - 3, 40000
-        PARAM, 1
-        HOP, 8
-    */
+void Request::makeRequestFromStages(int stages) {
     map<string, vector<string>> proc_node;
     int count = 0;
 
     stageNum = stages;
 
     string graphText;
-    for (int i = 1; i <= stages; i++) {//"NODE"‚É‘Î‰
+    for (int i = 1; i <= stages; i++) {
         vector<string> proc;
         vector<string> type;
         if (i == 1) {
@@ -301,12 +280,12 @@ void Request::makeRequestFromStages(int stages) {//ƒXƒe[ƒW”‚²‚Æ‚ÌƒŠƒNƒGƒXƒgì
     }
 
 
-    for (int t = 1; t <= stages; t++) {//"PROC"‚É‘Î‰
+    for (int t = 1; t <= stages; t++) {
         vector<string> proc = {"PROC",std::to_string(t)};
         int cnt = 0;
         for (int i = 0; i < proc_node[proc[1] + "_recv"].size(); i++) {
             for (int j = 0; j < proc_node[proc[1] + "_exe"].size(); j++) {
-                if (atoi(proc_node[proc[1] + "_recv"][i].c_str()) >= 2) {//ƒvƒƒZƒX3‚¾‚¯‚·‚×‚Ä‚ğ‚Â‚¯‚È‚¢
+                if (atoi(proc_node[proc[1] + "_recv"][i].c_str()) >= 2) {
                     if (j == cnt) {
                         graphText += "link," + proc_node[proc[1] + "_recv"][i] + "," + proc_node[proc[1] + "_exe"][j] + ",0,0," + proc[1] + "#";
                         cnt++;
@@ -335,14 +314,12 @@ void Request::makeRequestFromStages(int stages) {//ƒXƒe[ƒW”‚²‚Æ‚ÌƒŠƒNƒGƒXƒgì
     linkCount = reqGraph.linkCount;
 
 
-
-    //createTASK‚Ìˆ—
     map<int, std::vector<int>> task;
-    for (int i = 1; i <= stages; i++) {//"PROC"‚É‘Î‰
+    for (int i = 1; i <= stages; i++) {
         task[1].push_back(i);
     }
-    acceptableTime = model->acceptableTime;//§ŒÀŠÔ‚ğİ’è
-    throughPut = model->throughPut;//ƒXƒ‹[ƒvƒbƒg§–ñ‚ğİ’è
+    acceptableTime = model->acceptableTime;
+    throughPut = model->throughPut;
     tasks.clear();
     tasks.push_back(1);
     task_num = 1;
@@ -356,8 +333,6 @@ void Request::makeRequestFromStages(int stages) {//ƒXƒe[ƒW”‚²‚Æ‚ÌƒŠƒNƒGƒXƒgì
     allMem = 0;
     allCPU = 0;
     allGPU = 0;
-
-
 
     auto vertex_range = vertices(graph);
     for (auto first = vertex_range.first, last = vertex_range.second; first != last; ++first) {

@@ -1,8 +1,4 @@
-﻿// ConsoleApplication1.cpp : このファイルには 'main' 関数が含まれています。プログラム実行の開始と終了がそこで行われます。
-//
-//#define _CRTDBG_MAP_ALLOC
-
-//#include <utility>
+﻿
 #include <string>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_utility.hpp>
@@ -88,16 +84,16 @@ int main() {
 
     int APPID = -1;
 
-    int modelNumber=-1;//モデルの数
+    int modelNumber=-1;
 
-    int antSedai = 0;//蟻の世代数
-    int antNum = 0;//１世代の蟻の数
-    double feromonGensui = 0.1;//フェロモンの減衰率
-    double feromonParam = 2;//フェロモンの重要度パラメータ
-    double costParam = 1;//コストの重要度パラメータ
-    int threadNumber = 5;//スレッド数
+    int antSedai = 0;
+    int antNum = 0;
+    double feromonGensui = 0.1;
+    double feromonParam = 2;
+    double costParam = 1;
+    int threadNumber = 5;
     double feromonRate = 0.1;
-    double initialFeromon = 1;//フェロモンの初期値
+    double initialFeromon = 1;
 
     int rejectID = -1;
 
@@ -113,7 +109,7 @@ int main() {
     while (!ifs.eof()) {
         std::getline(ifs, buf);
         data = buf;
-        if (data.find("antSedai") != std::string::npos) {//演算リソースのノード
+        if (data.find("antSedai") != std::string::npos) {
             antSedai = atoi(split(data, ',')[1].c_str());
         }
         else if (data.find("antNum") != std::string::npos) {
@@ -177,12 +173,12 @@ int main() {
     }
     cout << modelNumber << "\n";
 
-    std::pair<int,int> lifeTime[2000];//<割り当て後に過ぎたタイムスロット、寿命>
+    std::pair<int,int> lifeTime[2000];
     for (int i = 0; i < 2000; i++) {
         lifeTime[i] = { -1,-1 };
     }
 
-    AllocateData* allocData = new AllocateData();//割り当てデータ
+    AllocateData* allocData = new AllocateData();
     int requestNum = 0;
     int rejectNum = 0;
 
@@ -264,7 +260,7 @@ int main() {
             
         int nextTime = atoi(split(seqs, ',')[0].c_str());
         int nextApp = atoi(split(seqs, ',')[2].c_str());
-        int nextAppLifetime = atoi(split(seqs, ',')[3].c_str());//そのアプリの寿命
+        int nextAppLifetime = atoi(split(seqs, ',')[3].c_str());
         while (true) {
             timeSlot++;
             if (Tumekomi == false) {

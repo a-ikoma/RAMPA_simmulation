@@ -42,7 +42,7 @@ ReqGraph::ReqMap ReqGraph::createGraph(string reqGraph) {
     vector<string> graphdata = split_naive2(reqGraph, '#');
     for (int t = 0; t < graphdata.size(); t++) {
         data = graphdata[t];
-        if (data.find("cpu") != std::string::npos) {//演算リソースのノード
+        if (data.find("cpu") != std::string::npos) {
             vector<string> calc = split_naive2(data, ',');
             ReqMap::vertex_descriptor v = add_vertex(map);
             map[v].number = atoi(calc[1].c_str());
@@ -53,7 +53,7 @@ ReqGraph::ReqMap ReqGraph::createGraph(string reqGraph) {
                 map[v].type[atoi(proc[i].c_str())] = atoi(type[i].c_str());
             }
         }
-        else if (data.find("gpu") != std::string::npos) {//演算リソースのノード
+        else if (data.find("gpu") != std::string::npos) {
             vector<string> calc = split_naive2(data, ',');
             ReqMap::vertex_descriptor v = add_vertex(map);
             map[v].number = atoi(calc[1].c_str());
@@ -64,7 +64,7 @@ ReqGraph::ReqMap ReqGraph::createGraph(string reqGraph) {
                 map[v].type[atoi(proc[i].c_str())] = atoi(type[i].c_str());
             }
         }
-        else if (data.find("mem") != std::string::npos) {//リモートメモリのノード
+        else if (data.find("mem") != std::string::npos) {
 
             vector<string> calc = split_naive2(data, ',');
             ReqMap::vertex_descriptor v = add_vertex(map);
@@ -77,7 +77,7 @@ ReqGraph::ReqMap ReqGraph::createGraph(string reqGraph) {
             }
 
         }
-        else if (data.find("link") != std::string::npos) {//リンクの要素定義
+        else if (data.find("link") != std::string::npos) {
             vector<string> link = split_naive2(data, ',');
             auto vertex_range = vertices(map);
             bool inserted = true;

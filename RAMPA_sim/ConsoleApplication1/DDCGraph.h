@@ -14,20 +14,20 @@
 #include <omp.h>
 
 
-class DDCGraph//基盤となるマイクロデータセンターネットワークを作成するクラス
+class DDCGraph
 {
 
 public:
 
     struct coreInfo {
-        bool enable;//実行時に利用されるコアかどうか
-        bool candFlg;//選択候補になるかどうかのフラグ
+        bool enable;
+        bool candFlg;
         int coreNum;
-        std::map<int, double> rate;//パケット到着率
-        double feromon;//フェロモン
-        std::set<int> intCores;//統合リンクの集合
-        std::vector<std::pair<std::map<int, double>,int>> useAppRate;//アプリごとのパケット到着率を記録したやつ(割り当て解除処理の時に利用する)
-        std::map<int, double> delay;//応答遅延＋伝播遅延
+        std::map<int, double> rate;
+        double feromon;
+        std::set<int> intCores;
+        std::vector<std::pair<std::map<int, double>,int>> useAppRate;
+        std::map<int, double> delay;
     };
     // variable
 private:
@@ -36,27 +36,27 @@ private:
 
     struct node {
         int number;
-        int resource;//メモリ1,cpu2,GPU3,OCS4,パケットスイッチ5
-        int block;//コア数またはメモリのブロックの総数
-        int residual;//残余ブロック数
-        int id;//リソースの性能ごとのid
-        double trans_delay;//ノードの転送処理遅延
-        double cost;//コスト
-        double flops;//FLOPS
-        double feromon;//フェロモン
-        double capacity;//VRAM容量
-        double memBand;//メモリ帯域幅
+        int resource;
+        int block;
+        int residual;
+        int id;
+        double trans_delay;
+        double cost;
+        double flops;
+        double feromon;
+        double capacity;
+        double memBand;
         std::vector<int> adjNode;
     };
 
     struct link {
         int number;
-        double propagation;//伝播遅延
-        double cost;//リンクのコスト
-        std::unordered_map<int,coreInfo> core;//ハッシュはご存じの通りで
+        double propagation;
+        double cost;
+        std::unordered_map<int,coreInfo> core;
         std::vector<int> adjNode;
-        int passWeight;//最小ホップ探索のためだけの値
-        int coreNumber;//ノード間のリンク数
+        int passWeight;
+        int coreNumber;
     };
 
     struct bundle {
@@ -68,34 +68,29 @@ private:
     // accessor
 public:
     int allocatePolicy;
-    double decreaseRate;//フェロモンの減衰率
+    double decreaseRate;
     typedef boost::adjacency_list<//multisetS
         boost::listS, boost::vecS, boost::undirectedS,
-        node,    // 頂点のBundleプロパティ
-        link, // 辺のBundleプロパティ
-        bundle  // グラフのBundleプロパティ
+        node,
+        link,
+        bundle
     > Map;
     DDCGraph(std::string filename,double gensui, double initFeromon,int allocPolicy);
     DDCGraph();
 
     DDCGraph::Map createGraph();
 
-
-
     double bandwidth;
 
-
-    double initialFeromon;//フェロモンの初期値
+    double initialFeromon;
 
     std::map<int,std::vector<int>> distances;
-
-
 
     int CPUResidual;
     int GPUResidual;
     int memResidual;
 
-    std::map<DDCGraph::Map::edge_descriptor, std::map<int, std::vector<std::pair<DDCGraph::Map::edge_descriptor, int>>>> lightPaths;//キーとしてソースノードの番号、バリューとして、キーが最初に通過するコアの番号である、通過リンクとコア番号のペアの集合
+    std::map<DDCGraph::Map::edge_descriptor, std::map<int, std::vector<std::pair<DDCGraph::Map::edge_descriptor, int>>>> lightPaths;
 private:
 
     std::vector<std::pair<int, int>> gpuPairs;
@@ -121,8 +116,8 @@ public:
     Map graph;
     double maxGPUCost;//GPUコストんお最大値
     int allocCount = 0;
-    std::map<Map::edge_descriptor, std::vector<int>> initCandInfoMap;//candFlgがtrueのエッジディスクリプターとコアをもつ
-    std::map<Map::edge_descriptor, std::vector<int>> initEnableInfoMap;//enableFlgの初期値だけを持つやつ
+    std::map<Map::edge_descriptor, std::vector<int>> initCandInfoMap;
+    std::map<Map::edge_descriptor, std::vector<int>> initEnableInfoMap;
 
     void decreaseNodeFeromon();
     void resetFeromon();//フェロモン値のリセット
@@ -146,11 +141,11 @@ public:
 
     double circuitDelay;
 
-    std::vector<Map::edge_descriptor> swLinks;//スイッチ間のリンクの集合
+    std::vector<Map::edge_descriptor> swLinks;
 
-    int memAllResidual;//初期の残余
-    int CPUAllResidual;//初期の残余
-    int GPUAllResidual;//初期の残余
+    int memAllResidual;
+    int CPUAllResidual;
+    int GPUAllResidual;
 
 
     std::map<DDCGraph::Map::edge_descriptor, std::map<int, bool>> nallocCandinfo;
@@ -158,7 +153,7 @@ public:
     std::map<DDCGraph::Map::edge_descriptor, std::map<int, bool>> enableinfo;
 
 
-    std::vector<int> fixAllocateCandidates;//同じGPUプール内の資源からすべて選ぶ時の候補
+    std::vector<int> fixAllocateCandidates;
 
 
 

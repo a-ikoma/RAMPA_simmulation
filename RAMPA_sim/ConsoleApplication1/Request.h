@@ -19,15 +19,7 @@ private:
 	void createLinkTask();
 
 
-	//std::map<int, vector<std::pair<std::pair<int, int>, int>>>;//仮想リンク番号で順番に通る
-
 	void search(int taskNum, int seq, std::vector<std::pair<int, int>> linkSet, int n1, int n2);
-
-
-
-
-
-
 
 public:
 	Request(std::string filename,int id);
@@ -37,15 +29,14 @@ public:
 	int getTaskNum();
 	ReqGraph::ReqMap graph;
 	std::map<int, std::vector<int>> task_proc;
-	std::map<int, std::vector<std::vector<std::pair<int,int>>>> link_task;//タスクを行うリンクの集合
-	std::map<int, double> proc_clock;//プロセスごとのクロック数
-	std::map<int, double> proc_pageFault;//プロセスごとのページフォールト数
-	std::map<int, double> proc_pageNum;//プロセスごとのページ数
-	double param;//パラメータ
+	std::map<int, std::vector<std::vector<std::pair<int,int>>>> link_task;
+	std::map<int, double> proc_clock;
+	std::map<int, double> proc_pageFault;
+	std::map<int, double> proc_pageNum;
+	double param;
 	std::vector<int> tasks;
 	int getHopLimit();
 	bool ocpyFlg;
-	//std::map<int, std::vector<int>> passedNode;//仮想リンク番号で通るノード番号を順番に
 
 	int allCPU;
 	int allGPU;
@@ -58,10 +49,10 @@ public:
 	double connectGPURate;
 
 
-	int hopLimit;//ホップ数制限
+	int hopLimit;
 
-	double acceptableTime;//許容時間
-	double throughPut;//スル－プット要件
+	double acceptableTime;
+	double throughPut;
 	void makeRequestFromStages(int stages);
 
 
