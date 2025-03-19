@@ -1,0 +1,1 @@
+ConsoleApplication1のプロパティページのC/C++の全般の追加のインクルードディレクトリでboost-1_77を指定
