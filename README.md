@@ -24,7 +24,7 @@ This program is used to evaluate the proposed method called Resource-Aware Model
    - Set **OpenMP Support** to **Yes**.
 
 4. **Build and Run:**
-   - After making the necessary configuration changes, build and run the project.
+   - After making the necessary configuration changes, build and run the project in Release.
 
 
 
