@@ -28,3 +28,46 @@ This program is used to evaluate the proposed method called Resource-Aware Model
 
 
 
+## Usage Instructions
+
+1. **Compile the Project:**
+   - Open the project in Visual Studio and build the solution to generate the `.exe` file.
+
+2. **Place Required Files:**
+   - After compiling the project, place the following files in the same folder as the generated `.exe` file:
+     - **GPU Cluster Configuration File:** `graph.txt`
+     - **Model Partitioning and Allocation Method Configuration File:** `param.txt`
+     - **Service Execution Request Sequence Configuration File:** `allocSeq.txt`
+     - **Folder containing DL Models:** `MODELS` (which contains the model configuration files)
+
+3. **Running the Simulation:**
+   - Execute the `.exe` file. The simulation will begin, and the following output files will be generated:
+     - **`utility_teian_`:** This file contains the following information for each time slot:
+       - Assigned DL model number
+       - Rejection rate (number of rejected tasks / number of allocated tasks)
+       - Link utilization rate (number of allocated links / total links in the cluster)
+       - GPU utilization rate (number of allocated GPUs / total GPUs)
+       - Number of services affected by changes in communication delay due to allocation
+       - Generation count when the solution converges
+       - Resource allocation cost
+       - Allocation time
+       - Execution time
+       - Throughput
+       - Model partitioning details
+     - **`link`:** This file lists services using GPU cluster links for communication in each time slot and their traffic.
+     - **`residual`:** This file describes the GPU allocation status for each time slot.
+     - **`lightpath`:** This file describes the lightpath routes connecting GPUs in the cluster for each time slot.
+
+4. **Folder Structure for Input Files:**
+   - The following folders contain the necessary input data for the simulation:
+     - `graphs`: Contains the cluster configuration data.
+     - `allocs`: Contains the service request sequence.
+     - `params`: Contains the method parameters.
+     - `MODELS`: Contains the DL models used for the simulation.
+
+5. **Automatic Evaluation for All Cases:**
+   - To run the evaluation for all cases automatically, place the input files and folders (`graphs`, `allocs`, `params`, `MODELS`) in the same folder as the `.exe` file.
+   - Then, run `allProc.bat` to trigger the evaluation for all cases.
+
+
+
