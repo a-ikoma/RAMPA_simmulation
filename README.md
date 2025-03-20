@@ -67,6 +67,7 @@ This program is used to evaluate the proposed method called Resource-Aware Model
 
 5. **Automatic Evaluation for All Cases:**
    - To run the evaluation for all cases automatically, place the input files and folders (`graphs`, `allocs`, `params`, `MODELS`) in the same folder as the `.exe` file.
+   - Run the `paramMaker.py` script to generate the necessary parameter files in the `params` folder.
    - Then, run `allProc.bat` to trigger the evaluation for all cases.
 
 
