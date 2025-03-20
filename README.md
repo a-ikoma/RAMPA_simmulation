@@ -70,5 +70,7 @@ This program is used to evaluate the proposed method called Resource-Aware Model
    - Run the `paramMaker.py` script to generate the necessary parameter files in the `params` folder.
    - Then, run `allProc.bat` to trigger the evaluation for all cases.
 
+## Experimental Results
 
+For the experimental results in this paper, please refer to the `result` folder.
 
