@@ -11,7 +11,7 @@ The generated request sequences are categorized into the following evaluation ca
 - **Case3:** High demand for low-delay services.
 - **Case4:** High demand for huge model services.
 
-Each case corresponds to a dedicated folder (`Case1`, `Case2`, `Case3`, `Case4`) containing the respective deployment request sequence files used in our study.
+Each case corresponds to a dedicated folder (`Case1`, `Case2`, `Case3`, `Case4`) containing the respective deployment request sequence files used in our study "Resource aware deep learning model partitioning and allocation for inference task in clusters with heterogeneous graphics processing units".
 
 ## File Format
 
@@ -32,9 +32,4 @@ Timestamp, allocate, DL Service ID, Service Lifetime
 
 The service lifetime is counted from the timestamp of allocation. Once the lifetime expires, the allocated GPUs and network resources are released.
 
-## Reference
-
-These deployment request sequences are used in the evaluation described in our paper "".
-
-For further details, refer to `allocationSequenceMaker.py` and `param.txt`.
 
