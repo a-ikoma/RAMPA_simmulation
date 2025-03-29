@@ -8,7 +8,7 @@
 - model5.txt: Gemme-2-27b
 - model6.txt: Qwen2.5-32B
 
-## パラメータ設定
+## Parameter
 The following parameters are used to configure the deep learning model:
 
 - **ID:** The unique identifier for the model.
