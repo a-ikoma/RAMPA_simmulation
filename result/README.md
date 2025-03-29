@@ -1,4 +1,4 @@
-# Experimental Results
+# Evaluation Results
 
 The experimental result data (result_graph1, result_graph2, result_graph3, result_graph4) can be downloaded from [here](https://drive.google.com/drive/folders/1PjcpbunFgyB159yYvThLv64Rz8XP-N7I?usp=drive_link) and placed in this folder. By running the corresponding Python scripts, you will be able to generate the same graphs as presented in the paper.
 
