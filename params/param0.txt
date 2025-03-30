@@ -1,0 +1,13 @@
+antSedai,20
+antNum,20
+feromonGensui,0.1
+feromonParam,2
+costParam,1
+thread,10
+feromonRate,100
+initialFeromon,1000
+allocatePolicy,0
+models,6
+log,1
+tumekomi,1
+stage,-1,-1,-1,-1,-1,-1
